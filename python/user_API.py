@@ -27,6 +27,9 @@ class UserUpdate(BaseModel):
     name: str
     email: str
 
+class UserDelete(BaseModel):
+    id: str
+
 class DB_docking:
     def __init__(self) -> None:
         self.db_config  = {
@@ -36,7 +39,6 @@ class DB_docking:
             'database': os.getenv('MYSQL_DATABASE'),
             'port': os.getenv('MYSQL_DB_PORT')
         }
-        print(self.db_config)
         self.local_conn = local()
 
     @property
@@ -60,6 +62,9 @@ class DB_docking:
     def update_user_cursor(self, cursor, name, email, user_id):
         cursor.execute("UPDATE users SET name = %s, email = %s WHERE id = %s", (name, email, user_id))
     
+    def update_user_id_cursor(self, cursor, email, user_id):
+        cursor.execute("UPDATE users SET id = %s WHERE email = %s", (user_id, email))
+
     def delete_user_cursor(self, cursor, user_id):
         cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
 
@@ -69,13 +74,15 @@ def main():
     "This server SQL:CRUD TEST API. If you want to test, go to the '/docs' URL or POSTMAN." }
 
 # 사용자 생성 (POST)
-@app.post("/users/create/{user_id}")
-def create_user(user_id: str, user: UserCreate):
+@app.post("/users/create")
+def create_user(user: UserCreate):
+    conn = None
+    cursor = None
     try:
-        db_dk= DB_docking()
+        db_dk = DB_docking()
         conn = db_dk.connection
         cursor = conn.cursor()
-        db_dk.create_user_cursor(cursor, user_id, user.name, user.email)
+        db_dk.create_user_cursor(cursor, user.id, user.name, user.email)
         conn.commit()
     except Error as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -84,12 +91,14 @@ def create_user(user_id: str, user: UserCreate):
             cursor.close()
         if conn:
             conn.close()
-    return {"name": user.name, "email": user.email}
+    return {"id": user.id, "name": user.name, "email": user.email}
 
 # 전체 사용자 목록 가져오기 (GET)
 @app.get("/users/")
-async def read_users():
+def read_users():
     users = []
+    conn = None
+    cursor = None
     try:
         db_dk= DB_docking()
         conn = db_dk.connection
@@ -106,8 +115,10 @@ async def read_users():
 
 # 사용자 목록 가져오기 (GET)
 @app.get("/users/{user_id}")
-async def read_users(user_id: str):
+def read_users(user_id: str):
     users = []
+    conn = None
+    cursor = None
     try:
         db_dk= DB_docking()
         conn = db_dk.connection
@@ -122,15 +133,16 @@ async def read_users(user_id: str):
             conn.close()
     return users
 
-
 # 사용자 정보 업데이트 (PUT)
-@app.put("/users/update/{user_id}")
-def update_user(user_id: str, user: UserUpdate):
+@app.put("/users/update")
+def update_user(user: UserUpdate):
+    conn = None
+    cursor = None
     try:
-        db_dk= DB_docking()
+        db_dk = DB_docking()
         conn = db_dk.connection
         cursor = conn.cursor()
-        db_dk.update_user_cursor(cursor, user.name, user.email, user_id)
+        db_dk.update_user_cursor(cursor, user.name, user.email, user.id)
         conn.commit()
         if cursor.rowcount == 0:
             raise HTTPException(status_code=404, detail="User not found")
@@ -141,16 +153,40 @@ def update_user(user_id: str, user: UserUpdate):
             cursor.close()
         if conn:
             conn.close()
-    return {"id": user_id, "name": user.name, "email": user.email}
+    return {"id": user.id, "name": user.name, "email": user.email}
+
+# 사용자 id 정보 업데이트 (PUT)
+@app.put("/users/update/id")
+def update_user(user: UserUpdate):
+    conn = None
+    cursor = None
+    try:
+        db_dk = DB_docking()
+        conn = db_dk.connection
+        cursor = conn.cursor()
+        db_dk.update_user_id_cursor(cursor, user.email, user.id)
+        conn.commit()
+        if cursor.rowcount == 0:
+            raise HTTPException(status_code=404, detail="User not found")
+    except Error as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+    return {"id": user.id, "name": user.name, "email": user.email}
 
 # 사용자 삭제 (DELETE)
-@app.delete("/users/delete/{user_id}")
-def delete_user(user_id: str):
+@app.delete("/users/delete/")
+def delete_user(user: UserDelete):
+    conn = None
+    cursor = None
     try:
         db_dk= DB_docking()
         conn = db_dk.connection
         cursor = conn.cursor()
-        db_dk.delete_user_cursor(cursor, user_id)
+        db_dk.delete_user_cursor(cursor, user.id)
         conn.commit()
         if cursor.rowcount == 0:
             raise HTTPException(status_code=404, detail="User not found")
