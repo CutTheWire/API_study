@@ -104,7 +104,7 @@ async def read_users():
             conn.close()
     return users
 
-# 전체 사용자 목록 가져오기 (GET)
+# 사용자 목록 가져오기 (GET)
 @app.get("/users/{user_id}")
 async def read_users(user_id: str):
     users = []
