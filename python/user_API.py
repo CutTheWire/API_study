@@ -63,8 +63,6 @@ class DB_docking:
     def delete_user_cursor(self, cursor, user_id):
         cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
 
-db_dk= DB_docking()
-
 @app.get("/")
 def main():
     return {"message":
@@ -74,6 +72,7 @@ def main():
 @app.post("/users/create/{user_id}")
 def create_user(user_id: str, user: UserCreate):
     try:
+        db_dk= DB_docking()
         conn = db_dk.connection
         cursor = conn.cursor()
         db_dk.create_user_cursor(cursor, user_id, user.name, user.email)
@@ -81,38 +80,46 @@ def create_user(user_id: str, user: UserCreate):
     except Error as e:
         raise HTTPException(status_code=400, detail=str(e))
     finally:
-        cursor.close()
-        conn.close()
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
     return {"name": user.name, "email": user.email}
 
 # 전체 사용자 목록 가져오기 (GET)
 @app.get("/users/")
-def read_users():
+async def read_users():
     users = []
     try:
+        db_dk= DB_docking()
         conn = db_dk.connection
         cursor = conn.cursor(dictionary=True)
         users = db_dk.read_all_user_cursor(cursor)
     except Error as e:
         raise HTTPException(status_code=400, detail=str(e))
     finally:
-        cursor.close()
-        conn.close()
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
     return users
 
 # 전체 사용자 목록 가져오기 (GET)
 @app.get("/users/{user_id}")
-def read_users(user_id: str):
+async def read_users(user_id: str):
     users = []
     try:
+        db_dk= DB_docking()
         conn = db_dk.connection
         cursor = conn.cursor(dictionary=True)
         users = db_dk.read_user_cursor(cursor, user_id)
     except Error as e:
         raise HTTPException(status_code=400, detail=str(e))
     finally:
-        cursor.close()
-        conn.close()
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
     return users
 
 
@@ -120,6 +127,7 @@ def read_users(user_id: str):
 @app.put("/users/update/{user_id}")
 def update_user(user_id: str, user: UserUpdate):
     try:
+        db_dk= DB_docking()
         conn = db_dk.connection
         cursor = conn.cursor()
         db_dk.update_user_cursor(cursor, user.name, user.email, user_id)
@@ -129,14 +137,17 @@ def update_user(user_id: str, user: UserUpdate):
     except Error as e:
         raise HTTPException(status_code=400, detail=str(e))
     finally:
-        cursor.close()
-        conn.close()
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
     return {"id": user_id, "name": user.name, "email": user.email}
 
 # 사용자 삭제 (DELETE)
 @app.delete("/users/delete/{user_id}")
 def delete_user(user_id: str):
     try:
+        db_dk= DB_docking()
         conn = db_dk.connection
         cursor = conn.cursor()
         db_dk.delete_user_cursor(cursor, user_id)
@@ -146,8 +157,10 @@ def delete_user(user_id: str):
     except Error as e:
         raise HTTPException(status_code=400, detail=str(e))
     finally:
-        cursor.close()
-        conn.close()
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
     return {"message": "User deleted successfully"}
 
 if __name__ == "__main__":
