@@ -23,7 +23,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: user/mysql:${{github.sha}}
+          tags: cutthewire/mysql:${{github.sha}}
           context: ./mysql
           file: ./mysql/Dockerfile
 
@@ -47,6 +47,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: true
-          tags: user/python:${{github.sha}}
+          tags: cutthewire/python:${{github.sha}}
           context: ./python
           file: ./python/Dockerfile
