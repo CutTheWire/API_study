@@ -66,8 +66,6 @@ def update_user_id_cursor(cursor, email, user_id):
 def delete_user_cursor(cursor, user_id):
     cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
 
-
-
 @app.get("/")
 def main():
     return {"message":
@@ -87,7 +85,7 @@ def create_user(user: UserCreate):
 
 # 전체 사용자 목록 가져오기 (GET)
 @app.get("/users/")
-def read_users():
+async def read_users():
     users = []
     cursor = None
     try:
@@ -99,7 +97,7 @@ def read_users():
 
 # 사용자 목록 가져오기 (GET)
 @app.get("/users/{user_id}")
-def read_users(user_id: str):
+async def read_users(user_id: str):
     users = []
     cursor = None
     try:
