@@ -1,14 +1,25 @@
 from locust import HttpUser, task, between
+import uuid
 
 class UserBehavior(HttpUser):
-    # 기본 호스트 URL 지정
-    # host = "http://localhost:8000/"
-    host = "http://192.168.219.101:8008/"
-    # 사용자가 다음 작업을 수행하기 전에 대기하는 시간(초 단위)
+    host = "http://192.168.45.154:8000/"
     wait_time = between(1, 2)
 
     @task
-    def get_users(self):
-        # "/users/" 경로에 대한 GET 요청 수행
-        # self.client.get("users/")
-        self.client.get("PrintAllUser/")
+    def create_and_delete_user(self):
+        # 유니크한 사용자 ID 생성
+        user_id = str(uuid.uuid4())
+        # 사용자 정보
+        user_data = {
+            "id": user_id,
+            "name": "Test User",
+            "email": f"{user_id}@example.com",
+            "created_at": "2024-05-12T00:00:00"  # ISO 8601 형식
+        }
+        # 사용자 생성
+        with self.client.post("users/create", json=user_data, catch_response=True) as response:
+            if response.status_code == 200:
+                # 생성된 사용자 삭제
+                self.client.delete(f"users/delete/", json={"id": user_id})
+            else:
+                response.failure(f"Failed to create user: {response.status_code}")

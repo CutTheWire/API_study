@@ -45,9 +45,9 @@ class UserUpdate(BaseModel):
 class UserDelete(BaseModel):
     id: str
 
-def create_user_cursor(cursor, name, email, user_id):
+def create_user_cursor(cursor, user_id, name, email):
     now = datetime.now()
-    cursor.execute("INSERT INTO users (id, name, email, created_at) VALUES (%s, %s, %s, %s)", (user_id, name, email, now))
+    cursor.execute("INSERT INTO users (id, name, email, created_at) VALUES (%s, %s, %s, %s)", (user_id, name, email, now,))
 
 def read_all_user_cursor(cursor):
     cursor.execute("SELECT * FROM users")
@@ -58,10 +58,10 @@ def read_user_cursor(cursor, user_id):
     return cursor.fetchall()
 
 def update_user_cursor(cursor, name, email, user_id):
-    cursor.execute("UPDATE users SET name = %s, email = %s WHERE id = %s", (name, email, user_id))
+    cursor.execute("UPDATE users SET name = %s, email = %s WHERE id = %s", (name, email, user_id,))
 
 def update_user_id_cursor(cursor, email, user_id):
-    cursor.execute("UPDATE users SET id = %s WHERE email = %s", (user_id, email))
+    cursor.execute("UPDATE users SET id = %s WHERE email = %s", (user_id, email,))
 
 def delete_user_cursor(cursor, user_id):
     cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
@@ -80,31 +80,46 @@ def create_user(user: UserCreate):
         create_user_cursor(cursor, user.id, user.name, user.email)
         get_db_connection().commit()
     except Error as e:
+        get_db_connection().rollback()
         raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        if cursor:
+            cursor.close()
     return {"id": user.id, "name": user.name, "email": user.email}
 
 # 전체 사용자 목록 가져오기 (GET)
 @app.get("/users/")
-async def read_users():
+def read_users():
     users = []
     cursor = None
     try:
-        cursor = get_db_connection().cursor(dictionary=True)
+        cursor = get_db_connection().cursor()
         users = read_all_user_cursor(cursor)
     except Error as e:
+        get_db_connection().rollback()
         raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        if cursor:
+            cursor.close()
     return users
 
 # 사용자 목록 가져오기 (GET)
 @app.get("/users/{user_id}")
-async def read_users(user_id: str):
+def read_users(user_id: str):
     users = []
     cursor = None
     try:
-        cursor = get_db_connection().cursor(dictionary=True)
+        cursor = get_db_connection().cursor()
         users = read_user_cursor(cursor, user_id)
+        if cursor.rowcount == 0:
+            get_db_connection().rollback()
+            raise HTTPException(status_code=404, detail="User not found")
     except Error as e:
+        get_db_connection().rollback()
         raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        if cursor:
+            cursor.close()
     return users
 
 # 사용자 정보 업데이트 (PUT)
@@ -116,9 +131,14 @@ def update_user(user: UserUpdate):
         update_user_cursor(cursor, user.name, user.email, user.id)
         get_db_connection().commit()
         if cursor.rowcount == 0:
+            get_db_connection().rollback()
             raise HTTPException(status_code=404, detail="User not found")
     except Error as e:
+        get_db_connection().rollback()
         raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        if cursor:
+            cursor.close()
     return {"id": user.id, "name": user.name, "email": user.email}
 
 # 사용자 id 정보 업데이트 (PUT)
@@ -130,9 +150,14 @@ def update_user(user: UserUpdate):
         update_user_id_cursor(cursor, user.email, user.id)
         get_db_connection().commit()
         if cursor.rowcount == 0:
+            get_db_connection().rollback()
             raise HTTPException(status_code=404, detail="User not found")
     except Error as e:
+        get_db_connection().rollback()
         raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        if cursor:
+            cursor.close()
     return {"id": user.id, "name": user.name, "email": user.email}
 
 # 사용자 삭제 (DELETE)
@@ -144,10 +169,12 @@ def delete_user(user: UserDelete):
         delete_user_cursor(cursor, user.id)
         get_db_connection().commit()
         if cursor.rowcount == 0:
+            get_db_connection().rollback()  # 변경사항이 반영되지 않도록 롤백
             raise HTTPException(status_code=404, detail="User not found")
     except Error as e:
+        get_db_connection().rollback()
         raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        if cursor:
+            cursor.close()
     return {"message": "User deleted successfully"}
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
