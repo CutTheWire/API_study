@@ -2,7 +2,7 @@ from locust import HttpUser, task, between
 import uuid
 
 class UserBehavior(HttpUser):
-    host = "http://192.168.45.154:8000/"
+    host = "http://192.168.0.2:8000/"
     wait_time = between(1, 2)
 
     @task

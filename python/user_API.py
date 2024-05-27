@@ -73,7 +73,7 @@ def main():
 
 # 사용자 생성 (POST)
 @app.post("/users/create")
-def create_user(user: UserCreate):
+async def create_user(user: UserCreate):
     cursor = None
     try:
         cursor = get_db_connection().cursor()
@@ -89,7 +89,7 @@ def create_user(user: UserCreate):
 
 # 전체 사용자 목록 가져오기 (GET)
 @app.get("/users/")
-def read_users():
+async def read_users():
     users = []
     cursor = None
     try:
@@ -105,7 +105,7 @@ def read_users():
 
 # 사용자 목록 가져오기 (GET)
 @app.get("/users/{user_id}")
-def read_users(user_id: str):
+async def read_users(user_id: str):
     users = []
     cursor = None
     try:
@@ -124,7 +124,7 @@ def read_users(user_id: str):
 
 # 사용자 정보 업데이트 (PUT)
 @app.put("/users/update")
-def update_user(user: UserUpdate):
+async def update_user(user: UserUpdate):
     cursor = None
     try:
         cursor = get_db_connection().cursor()
@@ -143,7 +143,7 @@ def update_user(user: UserUpdate):
 
 # 사용자 id 정보 업데이트 (PUT)
 @app.put("/users/update/id")
-def update_user(user: UserUpdate):
+async def update_user(user: UserUpdate):
     cursor = None
     try:
         cursor = get_db_connection().cursor()
@@ -162,7 +162,7 @@ def update_user(user: UserUpdate):
 
 # 사용자 삭제 (DELETE)
 @app.delete("/users/delete/")
-def delete_user(user: UserDelete):
+async def delete_user(user: UserDelete):
     cursor = None
     try:
         cursor = get_db_connection().cursor()

@@ -26,3 +26,5 @@ INSERT INTO users (id, name, email, created_at) VALUES
 ('minsoo', '정민수', 'minsoo@example.com', '2024-05-10 18:40:00'),
 ('yuri', '최유리', 'yuri@example.com', '2024-05-10 21:30:00'),
 ('jia', '김지아', 'jia@example.com', '2024-05-10 22:00:00');
+
+
