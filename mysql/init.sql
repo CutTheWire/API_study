@@ -15,6 +15,26 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB CHARSET=utf8mb4;
 
+CREATE TABLE youtube (
+    video_id VARCHAR(255) PRIMARY KEY,
+    title TEXT NOT NULL,
+    channel_id VARCHAR(255) NOT NULL,
+    channel_title VARCHAR(255) NOT NULL,
+    view_count BIGINT NOT NULL,
+    like_count BIGINT,
+    comment_count BIGINT
+) ENGINE=InnoDB CHARSET=utf8mb4;
+
+CREATE TABLE youtube_music (
+    video_id VARCHAR(255) PRIMARY KEY,
+    title TEXT NOT NULL,
+    channel_id VARCHAR(255) NOT NULL,
+    channel_title VARCHAR(255) NOT NULL,
+    view_count BIGINT NOT NULL,
+    like_count BIGINT,
+    comment_count BIGINT
+) ENGINE=InnoDB CHARSET=utf8mb4;
+
 INSERT INTO users (id, name, email, created_at) VALUES
 ('gain', '한가인', 'gain@example.com', '2024-05-10 07:40:00'),
 ('younghi', '이영희', 'younghi@example.com', '2024-05-10 09:00:00'),

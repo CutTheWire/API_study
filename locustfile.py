@@ -3,7 +3,7 @@ import uuid
 
 class UserBehavior(HttpUser):
     host = "http://192.168.0.2:8000/"
-    wait_time = between(1, 2)
+    wait_time = between(60, 1200)
 
     @task
     def create_and_delete_user(self):
