@@ -1,12 +1,16 @@
-from fastapi import FastAPI, HTTPException
+import os
 from pydantic import BaseModel
-import mysql.connector
-from mysql.connector import Error
+from dotenv import load_dotenv
+from datetime import datetime
 from threading import local
 from googleapiclient.discovery import build
-from dotenv import load_dotenv
-import os
-from datetime import datetime
+
+import uvicorn
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
+
+import mysql.connector
+from mysql.connector import Error
 
 app = FastAPI()
 
@@ -31,7 +35,6 @@ class UserCreate(BaseModel):
     id: str
     name: str
     email: str
-    created_at: datetime
 
 class UserUpdate(BaseModel):
     id: str
@@ -92,6 +95,14 @@ class Queries:
 
 db_queries = Queries()
 
+@app.get("/favicon.ico")
+async def favicon():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "cut.ico"))
+
+@app.get("/robots.txt")
+async def get_robots():
+    return FileResponse(os.path.join(script_dir, "robots.txt"))
+
 @app.get("/")
 def main():
     return {"message": "This server SQL:CRUD TEST API. If you want to test, go to the '/docs' URL or POSTMAN."}
@@ -151,3 +162,7 @@ async def delete_user(user: UserDelete):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     return {"message": "User deleted successfully"}
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+
