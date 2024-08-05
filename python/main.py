@@ -36,15 +36,18 @@ def login(user_id: str, pw: str):
 
 
 # 일별 데이터 불러오기
-@app.get("/throughout/day/all")
-async def get_day_all(data: GetDeviceToken):
-    try:
-        result = db_queries.get_day_all_cursor(data.iotId)
-        if not result:
-            raise HTTPException(status_code=404, detail="No data found for the provided IoT ID")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    return result
+# @app.get("/throughout/day/all")
+# async def get_day_all(data: GetDeviceToken):
+#     try:
+#         result = db_queries.get_day_all_cursor(data.iotId)
+#         if not result:
+#             raise HTTPException(status_code=404, detail="No data found for the provided IoT ID")
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
+#     return result
+
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=80)

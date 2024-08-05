@@ -13,7 +13,7 @@ db_config = {
     'user': os.getenv('MYSQL_ROOT_USER'),
     'password': os.getenv('MYSQL_ROOT_PASSWORD'),
     'database': os.getenv('MYSQL_DATABASE'),
-    'port': int(3306)
+    'port': 3306
 }
 
 # 데이터베이스 연결 풀 생성
@@ -41,7 +41,7 @@ def create_user(user):
     cursor = conn.cursor()
     try:
         add_user_query = (
-            "INSERT INTO users (user_id, pw, user_name, phone_number) "
+            "INSERT INTO user_tb (user_id, pw, user_name, phone_number) "
             "VALUES (%s, %s, %s, %s)"
         )
         user_data = (
@@ -70,7 +70,7 @@ def get_user_by_id(user_id: str):
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
     try:
-        query = "SELECT * FROM users WHERE user_id = %s"
+        query = "SELECT * FROM user_tb WHERE user_id = %s"
         cursor.execute(query, (user_id,))
         user = cursor.fetchone()
         return user
