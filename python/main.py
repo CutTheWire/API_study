@@ -3,13 +3,8 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.orm import Session
 
 from utils.auth import create_access_token, verify_password, ACCESS_TOKEN_EXPIRE_MINUTES, hash_password
-<<<<<<< HEAD
-from utils.database import create_user, get_user_by_id, get_day_all
+from utils.database import create_user, get_user_by_id, get_day_all, update_user_token
 from utils.schemas import UserCreate, UserResponse, LoginResponse, ThroughputDayAllResponse
-=======
-from utils.database import create_user, get_user_by_id, update_user_token
-from utils.schemas import UserCreate, UserResponse, LoginResponse
->>>>>>> b99e4c81ac095ddad4969d977ed4398bbb1eee54
 
 app = FastAPI()
 

@@ -109,7 +109,7 @@ def update_user_token(user_id: str, token: str, expires_at: datetime):
     finally:
         cursor.close()
         conn.close()
-
+    
 def get_day_all(iotId: str, date: str):
     """
     사용자 기기의 특정 날짜의 일별 처리량을 조회하는 함수
