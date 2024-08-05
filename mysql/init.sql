@@ -70,8 +70,8 @@ CREATE TABLE iot_sensor_tb (
   FOREIGN KEY (iot_id) REFERENCES iot_tb(iot_id)
 );
 
-
-
+ALTER TABLE user_tb
+ADD COLUMN expires_at TIMESTAMP NULL;
 
 -- user_tb에 데이터 삽입
 INSERT INTO user_tb (user_id, pw, user_name, phone_number, gender, provider, sns_id, device_token) VALUES

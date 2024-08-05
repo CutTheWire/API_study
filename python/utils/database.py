@@ -84,6 +84,31 @@ def get_user_by_id(user_id: str):
     finally:
         cursor.close()
         conn.close()
+        
+def update_user_token(user_id: str, token: str, expires_at: datetime):
+    """
+    사용자 토큰과 만료 시간을 업데이트하는 함수
+    :param user_id: 사용자 ID
+    :param token: 생성된 토큰
+    :param expires_at: 토큰 만료 시간
+    """
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        update_token_query = (
+            "UPDATE user_tb SET device_token = %s, expires_at = %s WHERE user_id = %s"
+        )
+        cursor.execute(update_token_query, (token, expires_at, user_id))
+        conn.commit()
+    
+    except mysql.connector.Error as err:
+        print(f"데이터베이스 오류: {err}")
+        conn.rollback()
+        raise
+    
+    finally:
+        cursor.close()
+        conn.close()
 
 
 # 일별 기기 정보

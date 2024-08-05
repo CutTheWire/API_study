@@ -1,9 +1,9 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.orm import Session
 
 from utils.auth import create_access_token, verify_password, ACCESS_TOKEN_EXPIRE_MINUTES, hash_password
-from utils.database import create_user, get_user_by_id
+from utils.database import create_user, get_user_by_id, update_user_token
 from utils.schemas import UserCreate, UserResponse, LoginResponse
 
 app = FastAPI()
@@ -41,6 +41,10 @@ def login(user_id: str, pw: str):
     access_token = create_access_token(
         data={"sub": db_user['user_id']}, expires_delta=access_token_expires
     )
+    
+    # 토큰과 만료 시간 업데이트
+    update_user_token(user_id=user_id, token=access_token, expires_at=datetime.utcnow() + access_token_expires)
+    
     return LoginResponse(
         access_token=access_token,
         token_type="bearer"
