@@ -2,14 +2,12 @@ version: '3.8'
 
 services:
   mysql:
+    image: mysql:latest
     restart: unless-stopped
-    build:
-      context: ./mysql
     ports:
-      - 3310:3306
+      - "3310:3306"
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_ROOT_HOST: ${MYSQL_ROOT_HOST}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
       - ./mysql/data:/var/lib/mysql
@@ -18,14 +16,18 @@ services:
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 
   python_app:
-    restart: unless-stopped
-    build: 
+    build:
       context: ./python
     ports:
       - "80:80"
     environment:
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_ROOT_HOST=${MYSQL_ROOT_HOST}
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      DATABASE_URL: ${DATABASE_URL}
+      SECRET_KEY: ${SECRET_KEY}
     depends_on:
       - mysql
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
