@@ -1,5 +1,6 @@
 import mysql.connector
 from dotenv import load_dotenv
+from datetime import datetime 
 import os
 from utils.auth import hash_password
 
@@ -8,11 +9,11 @@ load_dotenv()
 
 # 데이터베이스 설정
 db_config = {
-    'host': "localhost",
+    'host': "mysql",
     'user': os.getenv('MYSQL_ROOT_USER'),
     'password': os.getenv('MYSQL_ROOT_PASSWORD'),
     'database': os.getenv('MYSQL_DATABASE'),
-    'port': int(3310)
+    'port': int(3306)
 }
 
 # 데이터베이스 연결 풀 생성
@@ -79,3 +80,31 @@ def get_user_by_id(user_id: str):
     finally:
         cursor.close()
         conn.close()
+
+
+# 일별 기기 정보
+def get_day_all_cursor(self, iotId):
+    today = datetime.now().date()
+    cursor = self.local_conn.cursor()
+    query = """
+        SELECT * FROM iot_sensor_tb 
+        WHERE iot_id = %s AND DATE(created_at) = %s
+    """
+    cursor.execute(query, (iotId, today,))
+    result = cursor.fetchall()
+    cursor.close()
+    return result
+
+# 월별 기기 정보
+def get_month_all_cursor(self, iotId):
+    today = datetime.now().date()
+    current_month = today.strftime('%Y-%m')
+    cursor = self.local_conn.cursor()
+    query = """
+        SELECT * FROM iot_sensor_tb 
+        WHERE iot_id = %s AND DATE_FORMAT(created_at, '%%Y-%%m') = %s
+    """
+    cursor.execute(query, (iotId, current_month,))
+    result = cursor.fetchall()
+    cursor.close()
+    return result

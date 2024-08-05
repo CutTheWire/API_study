@@ -13,5 +13,9 @@ class UserResponse(BaseModel):
     user_name: str
     phone_number: Optional[str] = None
 
+
+class GetDeviceToken(BaseModel):
+    iotId: str
+
     class Config:
         orm_mode = True
