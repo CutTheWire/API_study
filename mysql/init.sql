@@ -18,9 +18,9 @@ CREATE TABLE user_tb (
   provider VARCHAR(255) DEFAULT 'local',
   sns_id VARCHAR(255),
   device_token VARCHAR(255),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  expired_at TIMESTAMP DEFAULT NULL,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  created_at DATETIME DEFAULT NOW(),
+  expired_at DATETIME DEFAULT NULL,
+  updated_at DATETIME DEFAULT NOW() ON UPDATE NOW(),
   UNIQUE(user_id)
 );
 
@@ -29,17 +29,17 @@ CREATE TABLE iot_tb (
   iot_id VARCHAR(255) UNIQUE NOT NULL,
   user_idx INT UNIQUE,
   iot_name VARCHAR(255),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  created_at DATETIME DEFAULT NOW(),
+  updated_at DATETIME DEFAULT NOW() ON UPDATE NOW(),
   FOREIGN KEY (user_idx) REFERENCES user_tb(user_idx)
 );
 
 CREATE TABLE subscribe_tb (
   subscribe_idx INT AUTO_INCREMENT PRIMARY KEY,
   user_idx INT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  expired_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  created_at DATETIME DEFAULT NOW(),
+  expired_at DATETIME DEFAULT NULL,
+  updated_at DATETIME DEFAULT NOW() ON UPDATE NOW(),
   FOREIGN KEY (user_idx) REFERENCES user_tb(user_idx)
 );
 
@@ -49,8 +49,8 @@ CREATE TABLE inquiry_tb (
   phone_number VARCHAR(255) NOT NULL,
   contents VARCHAR(255) NOT NULL,
   user_idx INT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  created_at DATETIME DEFAULT NOW(),
+  updated_at DATETIME DEFAULT NOW() ON UPDATE NOW(),
   FOREIGN KEY (user_idx) REFERENCES user_tb(user_idx)
 );
 
@@ -70,9 +70,6 @@ CREATE TABLE iot_sensor_tb (
   status BOOLEAN NOT NULL,
   FOREIGN KEY (iot_id) REFERENCES iot_tb(iot_id)
 );
-
-ALTER TABLE user_tb
-ADD COLUMN expires_at TIMESTAMP NULL;
 
 -- user_tb에 데이터 삽입
 INSERT INTO user_tb (user_id, pw, user_name, phone_number, gender, provider, sns_id, device_token) VALUES

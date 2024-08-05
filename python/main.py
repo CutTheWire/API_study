@@ -43,7 +43,7 @@ def login(user_id: str, pw: str):
     )
     
     # 토큰과 만료 시간 업데이트
-    update_user_token(user_id=user_id, token=access_token, expires_at=datetime.utcnow() + access_token_expires)
+    update_user_token(user_id=user_id, token=access_token, expires_at=datetime.now() + access_token_expires)
     
     return LoginResponse(
         access_token=access_token,
@@ -51,7 +51,7 @@ def login(user_id: str, pw: str):
     )
 
 
-@app.get("/troughput/day/all", response_model=ThroughputDayAllResponse)
+@app.get("/throughput/day/all", response_model=ThroughputDayAllResponse)
 def throughputDayAll(iotId: str, date: str):
     db_user = get_day_all(iotId, date)
     if not db_user:
