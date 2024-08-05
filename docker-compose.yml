@@ -25,5 +25,4 @@ services:
     ports:
       - "80:80"
     environment:
-      DATABASE_URL: ${DATABASE_URL}
       SECRET_KEY: ${SECRET_KEY}
