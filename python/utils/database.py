@@ -84,31 +84,57 @@ def get_user_by_id(user_id: str):
     finally:
         cursor.close()
         conn.close()
-
-
-# 일별 기기 정보
-def get_day_all_cursor(self, iotId):
-    today = datetime.now().date()
-    cursor = self.local_conn.cursor()
-    query = """
-        SELECT * FROM iot_sensor_tb 
-        WHERE iot_id = %s AND DATE(created_at) = %s
+        
+def update_user_token(user_id: str, token: str, expires_at: datetime):
     """
-    cursor.execute(query, (iotId, today,))
-    result = cursor.fetchall()
-    cursor.close()
-    return result
-
-# 월별 기기 정보
-def get_month_all_cursor(self, iotId):
-    today = datetime.now().date()
-    current_month = today.strftime('%Y-%m')
-    cursor = self.local_conn.cursor()
-    query = """
-        SELECT * FROM iot_sensor_tb 
-        WHERE iot_id = %s AND DATE_FORMAT(created_at, '%%Y-%%m') = %s
+    사용자 토큰과 만료 시간을 업데이트하는 함수
+    :param user_id: 사용자 ID
+    :param token: 생성된 토큰
+    :param expires_at: 토큰 만료 시간
     """
-    cursor.execute(query, (iotId, current_month,))
-    result = cursor.fetchall()
-    cursor.close()
-    return result
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        update_token_query = (
+            "UPDATE user_tb SET device_token = %s, expires_at = %s WHERE user_id = %s"
+        )
+        cursor.execute(update_token_query, (token, expires_at, user_id))
+        conn.commit()
+    
+    except mysql.connector.Error as err:
+        print(f"데이터베이스 오류: {err}")
+        conn.rollback()
+        raise
+    
+    finally:
+        cursor.close()
+        conn.close()
+
+def get_day_all(iotId: str, date: str):
+    """
+    사용자 기기의 특정 날짜의 일별 처리량을 조회하는 함수
+    :param iotId: 사용자 ID
+    :param date: 조회할 날짜 (YYYY-MM-DD 형식)
+    :return: 특정 날짜의 일별 처리량 (list of dict)
+    """
+    conn = get_connection()
+    cursor = conn.cursor(dictionary=True)
+    try:
+        query = """
+            SELECT * FROM iot_sensor_tb 
+            WHERE iot_id = %s AND DATE(timestamp) = %s
+        """
+        cursor.execute(query, (iotId, date))
+        daily_data = cursor.fetchall()
+        return daily_data
+    
+    except mysql.connector.Error as err:
+        print(f"데이터베이스 오류: {err}")
+        raise
+    
+    finally:
+        cursor.close()
+        conn.close()
+
+
+

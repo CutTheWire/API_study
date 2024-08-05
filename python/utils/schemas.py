@@ -17,6 +17,14 @@ class LoginResponse(BaseModel):
     access_token: str
     token_type: str
 
+class ThroughputDayAllResponse(BaseModel):
+    id: int
+    iotId:str
+    beforeWeight:int
+    afterWeight:int
+    timeStamp:str
+    runningTime:str
+
 class GetDeviceToken(BaseModel):
     iotId: str
 

@@ -1,10 +1,15 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.orm import Session
 
 from utils.auth import create_access_token, verify_password, ACCESS_TOKEN_EXPIRE_MINUTES, hash_password
-from utils.database import create_user, get_user_by_id
+<<<<<<< HEAD
+from utils.database import create_user, get_user_by_id, get_day_all
+from utils.schemas import UserCreate, UserResponse, LoginResponse, ThroughputDayAllResponse
+=======
+from utils.database import create_user, get_user_by_id, update_user_token
 from utils.schemas import UserCreate, UserResponse, LoginResponse
+>>>>>>> b99e4c81ac095ddad4969d977ed4398bbb1eee54
 
 app = FastAPI()
 
@@ -32,6 +37,28 @@ def signup(user: UserCreate):
 @app.post("/login", response_model=LoginResponse)
 def login(user_id: str, pw: str):
     db_user = get_user_by_id(user_id)
+    if not db_user:
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+    if not verify_password(pw, db_user['pw']):
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": db_user['user_id']}, expires_delta=access_token_expires
+    )
+    
+    # 토큰과 만료 시간 업데이트
+    update_user_token(user_id=user_id, token=access_token, expires_at=datetime.utcnow() + access_token_expires)
+    
+    return LoginResponse(
+        access_token=access_token,
+        token_type="bearer"
+    )
+
+
+@app.get("/troughput/day/all", response_model=ThroughputDayAllResponse)
+def throughputDayAll(iotId: str, date: str):
+    db_user = get_day_all(iotId, date)
     if not db_user:
         raise HTTPException(status_code=400, detail="Invalid credentials")
     if not verify_password(pw, db_user['pw']):
