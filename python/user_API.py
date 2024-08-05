@@ -27,8 +27,8 @@ db_config  = {
     'database': os.getenv('MYSQL_DATABASE'),
     'port': os.getenv('MYSQL_DB_PORT') 
 }
-api_key = os.getenv('API_KEY')
-youtube = build('youtube', 'v3', developerKey=api_key)
+# api_key = os.getenv('API_KEY')
+# youtube = build('youtube', 'v3', developerKey=api_key)
 
 # Pydantic 모델
 class UserCreate(BaseModel):
@@ -164,5 +164,5 @@ async def delete_user(user: UserDelete):
     return {"message": "User deleted successfully"}
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=80)
 

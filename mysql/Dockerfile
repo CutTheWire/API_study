@@ -7,5 +7,3 @@ ENV LC_ALL en_US.UTF-8
 
 
 CMD [ "mysqld" ]
-
-# SOURCE var/lib/mysql/first_setting.sql
