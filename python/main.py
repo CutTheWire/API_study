@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from utils.auth import create_access_token, verify_password, ACCESS_TOKEN_EXPIRE_MINUTES, hash_password
 from utils.database import create_user, get_user_by_id
-from utils.schemas import UserCreate, UserResponse
+from utils.schemas import UserCreate, UserResponse, LoginResponse
 
 app = FastAPI()
 
@@ -14,13 +14,22 @@ def signup(user: UserCreate):
     if db_user:
         raise HTTPException(status_code=400, detail="User already registered")
     user_id = create_user(user)
-    return {
-        "user_id": user_id,
-        "user_name": user.user_name,
-        "phone_number": user.phone_number
-    }
+    
+    # 사용자 정보 가져오기
+    db_user = get_user_by_id(user.user_id)  # 사용자 정보 다시 조회
+    
+    if db_user is None:
+        raise HTTPException(status_code=500, detail="User creation failed")
+    
+    return UserResponse(
+        user_idx=db_user['user_idx'],
+        user_id=db_user['user_id'],
+        user_name=db_user['user_name'],
+        phone_number=db_user.get('phone_number', None)
+    )
 
-@app.post("/login")
+
+@app.post("/login", response_model=LoginResponse)
 def login(user_id: str, pw: str):
     db_user = get_user_by_id(user_id)
     if not db_user:
@@ -32,8 +41,10 @@ def login(user_id: str, pw: str):
     access_token = create_access_token(
         data={"sub": db_user['user_id']}, expires_delta=access_token_expires
     )
-    return {"access_token": access_token, "token_type": "bearer"}
-
+    return LoginResponse(
+        access_token=access_token,
+        token_type="bearer"
+    )
 
 # 일별 데이터 불러오기
 # @app.get("/throughout/day/all")

@@ -53,10 +53,12 @@ def create_user(user):
         cursor.execute(add_user_query, user_data)
         conn.commit()
         return cursor.lastrowid  # 생성된 사용자 ID 반환
+    
     except mysql.connector.Error as err:
         print(f"데이터베이스 오류: {err}")
         conn.rollback()
         raise
+    
     finally:
         cursor.close()
         conn.close()
@@ -74,9 +76,11 @@ def get_user_by_id(user_id: str):
         cursor.execute(query, (user_id,))
         user = cursor.fetchone()
         return user
+    
     except mysql.connector.Error as err:
         print(f"데이터베이스 오류: {err}")
         raise
+    
     finally:
         cursor.close()
         conn.close()

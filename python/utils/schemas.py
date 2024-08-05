@@ -13,6 +13,9 @@ class UserResponse(BaseModel):
     user_name: str
     phone_number: Optional[str] = None
 
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str
 
 class GetDeviceToken(BaseModel):
     iotId: str
