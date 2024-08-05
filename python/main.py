@@ -49,38 +49,3 @@ def login(user_id: str, pw: str):
         access_token=access_token,
         token_type="bearer"
     )
-
-
-@app.get("/throughput/day/all", response_model=ThroughputDayAllResponse)
-def throughputDayAll(iotId: str, date: str):
-    db_user = get_day_all(iotId, date)
-    if not db_user:
-        raise HTTPException(status_code=400, detail="Invalid credentials")
-    if not verify_password(pw, db_user['pw']):
-        raise HTTPException(status_code=400, detail="Invalid credentials")
-    
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": db_user['user_id']}, expires_delta=access_token_expires
-    )
-    return LoginResponse(
-        access_token=access_token,
-        token_type="bearer"
-    )
-
-# 일별 데이터 불러오기
-# @app.get("/throughout/day/all")
-# async def get_day_all(data: GetDeviceToken):
-#     try:
-#         result = db_queries.get_day_all_cursor(data.iotId)
-#         if not result:
-#             raise HTTPException(status_code=404, detail="No data found for the provided IoT ID")
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=str(e))
-#     return result
-
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=80)

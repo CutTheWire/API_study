@@ -1,7 +1,8 @@
+import os
+from datetime import datetime
+
 import mysql.connector
 from dotenv import load_dotenv
-from datetime import datetime 
-import os
 from utils.auth import hash_password
 
 # 환경 변수 로드
@@ -95,8 +96,12 @@ def update_user_token(user_id: str, token: str, expires_at: datetime):
     conn = get_connection()
     cursor = conn.cursor()
     try:
+        # 이벤트 스케줄러 활성화
+        cursor.execute("SET GLOBAL event_scheduler = ON;")
+
+        # 사용자 토큰 업데이트 쿼리 실행
         update_token_query = (
-            "UPDATE user_tb SET device_token = %s, expires_at = %s WHERE user_id = %s"
+            "UPDATE user_tb SET device_token = %s, expired_at = %s WHERE user_id = %s"
         )
         cursor.execute(update_token_query, (token, expires_at, user_id))
         conn.commit()
@@ -109,7 +114,7 @@ def update_user_token(user_id: str, token: str, expires_at: datetime):
     finally:
         cursor.close()
         conn.close()
-    
+        
 def get_day_all(iotId: str, date: str):
     """
     사용자 기기의 특정 날짜의 일별 처리량을 조회하는 함수
@@ -121,7 +126,7 @@ def get_day_all(iotId: str, date: str):
     cursor = conn.cursor(dictionary=True)
     try:
         query = """
-            SELECT * FROM iot_sensor_tb 
+            SELECT * FROM iot_sensor_tb
             WHERE iot_id = %s AND DATE(timestamp) = %s
         """
         cursor.execute(query, (iotId, date))
@@ -135,6 +140,3 @@ def get_day_all(iotId: str, date: str):
     finally:
         cursor.close()
         conn.close()
-
-
-
