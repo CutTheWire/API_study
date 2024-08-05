@@ -117,14 +117,16 @@ def get_day_all(iotId: str, date: str):
     :param date: 조회할 날짜 (YYYY-MM-DD 형식)
     :return: 특정 날짜의 일별 처리량 (list of dict)
     """
+    start_time = f"{date} 00:00:00"
+    end_time = f"{date} 23:59:59"
     conn = get_connection()
     cursor = conn.cursor(dictionary=True)
     try:
         query = """
             SELECT * FROM iot_sensor_tb 
-            WHERE iot_id = %s AND DATE(timestamp) = %s
+            WHERE iot_id = %s AND timestamp BETWEEN %s AND %s
         """
-        cursor.execute(query, (iotId, date))
+        cursor.execute(query, (iotId, start_time, end_time))
         daily_data = cursor.fetchall()
         return daily_data
     

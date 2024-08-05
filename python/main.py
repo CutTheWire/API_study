@@ -53,19 +53,15 @@ def login(user_id: str, pw: str):
 
 @app.get("/throughput/day/all", response_model=ThroughputDayAllResponse)
 def throughputDayAll(iotId: str, date: str):
-    db_user = get_day_all(iotId, date)
-    if not db_user:
+    db_data = get_day_all(iotId, date)
+    if not db_data:
         raise HTTPException(status_code=400, detail="Invalid credentials")
-    if not verify_password(pw, db_user['pw']):
-        raise HTTPException(status_code=400, detail="Invalid credentials")
-    
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": db_user['user_id']}, expires_delta=access_token_expires
-    )
-    return LoginResponse(
-        access_token=access_token,
-        token_type="bearer"
+    return ThroughputDayAllResponse(
+        id=db_data['id'],
+        iotId=db_data['iot_id'],
+        measuredWeight=db_data['measured_weight'],
+        timeStamp=db_data['timestamp'],
+        status=db_data['status'],
     )
 
 # 일별 데이터 불러오기
