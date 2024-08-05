@@ -21,10 +21,9 @@ class LoginResponse(BaseModel):
 class ThroughputDayAllResponse(BaseModel):
     id: int
     iotId:str
-    beforeWeight:int
-    afterWeight:int
+    measuredWeight:int
     timeStamp:str
-    runningTime:str
+    status:bool
 
 class GetDeviceToken(BaseModel):
     iotId: str
